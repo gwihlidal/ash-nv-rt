@@ -1,0 +1,50 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 7
+; Bound: 31
+; Schema: 0
+               OpCapability RayTracingNV
+               OpExtension "SPV_NV_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint ClosestHitNV %main "main"
+               OpSource GLSL 460
+               OpSourceExtension "GL_NV_ray_tracing"
+               OpName %main "main"
+               OpName %barycentrics "barycentrics"
+               OpName %attribs "attribs"
+               OpName %hitValue "hitValue"
+               OpDecorate %hitValue Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_Function_v3float = OpTypePointer Function %v3float
+    %float_1 = OpConstant %float 1
+%_ptr_HitAttributeNV_v3float = OpTypePointer HitAttributeNV %v3float
+    %attribs = OpVariable %_ptr_HitAttributeNV_v3float HitAttributeNV
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+%_ptr_HitAttributeNV_float = OpTypePointer HitAttributeNV %float
+     %uint_1 = OpConstant %uint 1
+%_ptr_IncomingRayPayloadNV_v3float = OpTypePointer IncomingRayPayloadNV %v3float
+   %hitValue = OpVariable %_ptr_IncomingRayPayloadNV_v3float IncomingRayPayloadNV
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%barycentrics = OpVariable %_ptr_Function_v3float Function
+         %16 = OpAccessChain %_ptr_HitAttributeNV_float %attribs %uint_0
+         %17 = OpLoad %float %16
+         %18 = OpFSub %float %float_1 %17
+         %20 = OpAccessChain %_ptr_HitAttributeNV_float %attribs %uint_1
+         %21 = OpLoad %float %20
+         %22 = OpFSub %float %18 %21
+         %23 = OpAccessChain %_ptr_HitAttributeNV_float %attribs %uint_0
+         %24 = OpLoad %float %23
+         %25 = OpAccessChain %_ptr_HitAttributeNV_float %attribs %uint_1
+         %26 = OpLoad %float %25
+         %27 = OpCompositeConstruct %v3float %22 %24 %26
+               OpStore %barycentrics %27
+         %30 = OpLoad %v3float %barycentrics
+               OpStore %hitValue %30
+               OpReturn
+               OpFunctionEnd

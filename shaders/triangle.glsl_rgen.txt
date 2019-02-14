@@ -1,0 +1,146 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 7
+; Bound: 99
+; Schema: 0
+               OpCapability RayTracingNV
+               OpExtension "SPV_NV_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint RayGenerationNV %main "main" %gl_LaunchIDNV %gl_LaunchSizeNV
+               OpSource GLSL 460
+               OpSourceExtension "GL_NV_ray_tracing"
+               OpName %main "main"
+               OpName %pixelCenter "pixelCenter"
+               OpName %gl_LaunchIDNV "gl_LaunchIDNV"
+               OpName %inUV "inUV"
+               OpName %gl_LaunchSizeNV "gl_LaunchSizeNV"
+               OpName %d "d"
+               OpName %aspectRatio "aspectRatio"
+               OpName %origin "origin"
+               OpName %direction "direction"
+               OpName %rayFlags "rayFlags"
+               OpName %cullMask "cullMask"
+               OpName %tmin "tmin"
+               OpName %tmax "tmax"
+               OpName %topLevelAS "topLevelAS"
+               OpName %image "image"
+               OpName %hitValue "hitValue"
+               OpDecorate %gl_LaunchIDNV BuiltIn LaunchIdNV
+               OpDecorate %gl_LaunchSizeNV BuiltIn LaunchSizeNV
+               OpDecorate %topLevelAS DescriptorSet 0
+               OpDecorate %topLevelAS Binding 0
+               OpDecorate %image DescriptorSet 0
+               OpDecorate %image Binding 1
+               OpDecorate %hitValue Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v2float = OpTypeVector %float 2
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%gl_LaunchIDNV = OpVariable %_ptr_Input_v3uint Input
+     %v2uint = OpTypeVector %uint 2
+  %float_0_5 = OpConstant %float 0.5
+         %19 = OpConstantComposite %v2float %float_0_5 %float_0_5
+%gl_LaunchSizeNV = OpVariable %_ptr_Input_v3uint Input
+    %float_2 = OpConstant %float 2
+    %float_1 = OpConstant %float 1
+%_ptr_Function_float = OpTypePointer Function %float
+     %uint_0 = OpConstant %uint 0
+%_ptr_Input_uint = OpTypePointer Input %uint
+     %uint_1 = OpConstant %uint 1
+    %v3float = OpTypeVector %float 3
+%_ptr_Function_v3float = OpTypePointer Function %v3float
+    %float_0 = OpConstant %float 0
+   %float_n2 = OpConstant %float -2
+         %52 = OpConstantComposite %v3float %float_0 %float_0 %float_n2
+%_ptr_Function_uint = OpTypePointer Function %uint
+   %uint_255 = OpConstant %uint 255
+%float_0_00100000005 = OpConstant %float 0.00100000005
+  %float_100 = OpConstant %float 100
+         %71 = OpTypeAccelerationStructureNV
+%_ptr_UniformConstant_71 = OpTypePointer UniformConstant %71
+ %topLevelAS = OpVariable %_ptr_UniformConstant_71 UniformConstant
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+         %83 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+%_ptr_UniformConstant_83 = OpTypePointer UniformConstant %83
+      %image = OpVariable %_ptr_UniformConstant_83 UniformConstant
+      %v2int = OpTypeVector %int 2
+%_ptr_RayPayloadNV_v3float = OpTypePointer RayPayloadNV %v3float
+   %hitValue = OpVariable %_ptr_RayPayloadNV_v3float RayPayloadNV
+    %v4float = OpTypeVector %float 4
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+%pixelCenter = OpVariable %_ptr_Function_v2float Function
+       %inUV = OpVariable %_ptr_Function_v2float Function
+          %d = OpVariable %_ptr_Function_v2float Function
+%aspectRatio = OpVariable %_ptr_Function_float Function
+     %origin = OpVariable %_ptr_Function_v3float Function
+  %direction = OpVariable %_ptr_Function_v3float Function
+   %rayFlags = OpVariable %_ptr_Function_uint Function
+   %cullMask = OpVariable %_ptr_Function_uint Function
+       %tmin = OpVariable %_ptr_Function_float Function
+       %tmax = OpVariable %_ptr_Function_float Function
+         %15 = OpLoad %v3uint %gl_LaunchIDNV
+         %16 = OpVectorShuffle %v2uint %15 %15 0 1
+         %17 = OpConvertUToF %v2float %16
+         %20 = OpFAdd %v2float %17 %19
+               OpStore %pixelCenter %20
+         %22 = OpLoad %v2float %pixelCenter
+         %24 = OpLoad %v3uint %gl_LaunchSizeNV
+         %25 = OpVectorShuffle %v2uint %24 %24 0 1
+         %26 = OpConvertUToF %v2float %25
+         %27 = OpFDiv %v2float %22 %26
+               OpStore %inUV %27
+         %29 = OpLoad %v2float %inUV
+         %31 = OpVectorTimesScalar %v2float %29 %float_2
+         %33 = OpCompositeConstruct %v2float %float_1 %float_1
+         %34 = OpFSub %v2float %31 %33
+               OpStore %d %34
+         %39 = OpAccessChain %_ptr_Input_uint %gl_LaunchSizeNV %uint_0
+         %40 = OpLoad %uint %39
+         %41 = OpConvertUToF %float %40
+         %43 = OpAccessChain %_ptr_Input_uint %gl_LaunchSizeNV %uint_1
+         %44 = OpLoad %uint %43
+         %45 = OpConvertUToF %float %44
+         %46 = OpFDiv %float %41 %45
+               OpStore %aspectRatio %46
+               OpStore %origin %52
+         %54 = OpAccessChain %_ptr_Function_float %d %uint_0
+         %55 = OpLoad %float %54
+         %56 = OpLoad %float %aspectRatio
+         %57 = OpFMul %float %55 %56
+         %58 = OpAccessChain %_ptr_Function_float %d %uint_1
+         %59 = OpLoad %float %58
+         %60 = OpFNegate %float %59
+         %61 = OpCompositeConstruct %v3float %57 %60 %float_1
+         %62 = OpExtInst %v3float %1 Normalize %61
+               OpStore %direction %62
+               OpStore %rayFlags %uint_1
+               OpStore %cullMask %uint_255
+               OpStore %tmin %float_0_00100000005
+               OpStore %tmax %float_100
+         %74 = OpLoad %71 %topLevelAS
+         %75 = OpLoad %uint %rayFlags
+         %76 = OpLoad %uint %cullMask
+         %77 = OpLoad %v3float %origin
+         %78 = OpLoad %float %tmin
+         %79 = OpLoad %v3float %direction
+         %80 = OpLoad %float %tmax
+               OpTraceNV %74 %75 %76 %uint_0 %uint_0 %uint_0 %77 %78 %79 %80 %int_0
+         %86 = OpLoad %83 %image
+         %87 = OpLoad %v3uint %gl_LaunchIDNV
+         %88 = OpVectorShuffle %v2uint %87 %87 0 1
+         %90 = OpBitcast %v2int %88
+         %93 = OpLoad %v3float %hitValue
+         %95 = OpCompositeExtract %float %93 0
+         %96 = OpCompositeExtract %float %93 1
+         %97 = OpCompositeExtract %float %93 2
+         %98 = OpCompositeConstruct %v4float %95 %96 %97 %float_0
+               OpImageWrite %86 %90 %98
+               OpReturn
+               OpFunctionEnd

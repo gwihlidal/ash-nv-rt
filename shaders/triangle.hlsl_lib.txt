@@ -1,0 +1,133 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Google spiregg; 0
+; Bound: 89
+; Schema: 0
+               OpCapability RayTracingNV
+               OpExtension "SPV_NV_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint RayGenerationNV %rgen_main "rgen_main" %3 %4
+               OpEntryPoint MissNV %rmiss_main "rmiss_main" %3 %4
+               OpEntryPoint ClosestHitNV %rchit_main "rchit_main" %3 %4
+               OpSource HLSL 630
+               OpName %accelerationStructureNV "accelerationStructureNV"
+               OpName %g_topLevel "g_topLevel"
+               OpName %type_2d_image "type.2d.image"
+               OpName %g_output "g_output"
+               OpName %Payload "Payload"
+               OpMemberName %Payload 0 "hitValue"
+               OpName %payload "payload"
+               OpName %payload_0 "payload"
+               OpName %payload_1 "payload"
+               OpName %Attribute "Attribute"
+               OpMemberName %Attribute 0 "bary"
+               OpName %attribs "attribs"
+               OpName %rgen_main "rgen_main"
+               OpName %rmiss_main "rmiss_main"
+               OpName %rchit_main "rchit_main"
+               OpDecorate %3 BuiltIn LaunchIdNV
+               OpDecorate %4 BuiltIn LaunchSizeNV
+               OpDecorate %payload Location 0
+               OpDecorate %g_topLevel DescriptorSet 0
+               OpDecorate %g_topLevel Binding 0
+               OpDecorate %g_output DescriptorSet 0
+               OpDecorate %g_output Binding 1
+       %uint = OpTypeInt 32 0
+     %uint_0 = OpConstant %uint 0
+     %uint_1 = OpConstant %uint 1
+   %uint_255 = OpConstant %uint 255
+      %float = OpTypeFloat 32
+  %float_0_5 = OpConstant %float 0.5
+    %v2float = OpTypeVector %float 2
+         %24 = OpConstantComposite %v2float %float_0_5 %float_0_5
+    %float_2 = OpConstant %float 2
+    %float_1 = OpConstant %float 1
+         %27 = OpConstantComposite %v2float %float_1 %float_1
+    %float_0 = OpConstant %float 0
+   %float_n2 = OpConstant %float -2
+    %v3float = OpTypeVector %float 3
+         %31 = OpConstantComposite %v3float %float_0 %float_0 %float_n2
+%float_0_00100000005 = OpConstant %float 0.00100000005
+ %float_1000 = OpConstant %float 1000
+         %34 = OpConstantComposite %v3float %float_0 %float_0 %float_0
+%float_0_100000001 = OpConstant %float 0.100000001
+%float_0_300000012 = OpConstant %float 0.300000012
+         %37 = OpConstantComposite %v3float %float_0 %float_0_100000001 %float_0_300000012
+%accelerationStructureNV = OpTypeAccelerationStructureNV
+%_ptr_UniformConstant_accelerationStructureNV = OpTypePointer UniformConstant %accelerationStructureNV
+%type_2d_image = OpTypeImage %float 2D 2 0 0 2 Rgba32f
+%_ptr_UniformConstant_type_2d_image = OpTypePointer UniformConstant %type_2d_image
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+    %Payload = OpTypeStruct %v3float
+%_ptr_RayPayloadNV_Payload = OpTypePointer RayPayloadNV %Payload
+%_ptr_IncomingRayPayloadNV_Payload = OpTypePointer IncomingRayPayloadNV %Payload
+  %Attribute = OpTypeStruct %v2float
+%_ptr_HitAttributeNV_Attribute = OpTypePointer HitAttributeNV %Attribute
+       %void = OpTypeVoid
+         %46 = OpTypeFunction %void
+     %v2uint = OpTypeVector %uint 2
+    %v4float = OpTypeVector %float 4
+ %g_topLevel = OpVariable %_ptr_UniformConstant_accelerationStructureNV UniformConstant
+   %g_output = OpVariable %_ptr_UniformConstant_type_2d_image UniformConstant
+          %3 = OpVariable %_ptr_Input_v3uint Input
+          %4 = OpVariable %_ptr_Input_v3uint Input
+    %payload = OpVariable %_ptr_RayPayloadNV_Payload RayPayloadNV
+  %payload_0 = OpVariable %_ptr_IncomingRayPayloadNV_Payload IncomingRayPayloadNV
+  %payload_1 = OpVariable %_ptr_IncomingRayPayloadNV_Payload IncomingRayPayloadNV
+    %attribs = OpVariable %_ptr_HitAttributeNV_Attribute HitAttributeNV
+         %49 = OpConstantComposite %Payload %34
+         %50 = OpConstantComposite %Payload %37
+  %rgen_main = OpFunction %void None %46
+         %51 = OpLabel
+         %52 = OpLoad %v3uint %3
+         %53 = OpVectorShuffle %v2uint %52 %52 0 1
+         %54 = OpLoad %v3uint %4
+         %55 = OpVectorShuffle %v2uint %54 %54 0 1
+         %56 = OpConvertUToF %v2float %55
+         %57 = OpConvertUToF %v2float %53
+         %58 = OpFAdd %v2float %57 %24
+         %59 = OpFDiv %v2float %58 %56
+         %60 = OpVectorTimesScalar %v2float %59 %float_2
+         %61 = OpFSub %v2float %60 %27
+         %62 = OpCompositeExtract %float %56 0
+         %63 = OpCompositeExtract %float %56 1
+         %64 = OpFDiv %float %62 %63
+         %65 = OpCompositeExtract %float %61 0
+         %66 = OpFMul %float %65 %64
+         %67 = OpCompositeExtract %float %61 1
+         %68 = OpFNegate %float %67
+         %69 = OpCompositeConstruct %v3float %66 %68 %float_1
+         %70 = OpExtInst %v3float %1 Normalize %69
+               OpStore %payload %49
+         %71 = OpLoad %accelerationStructureNV %g_topLevel
+               OpTraceNV %71 %uint_1 %uint_255 %uint_0 %uint_0 %uint_0 %31 %float_0_00100000005 %70 %float_1000 %uint_0
+         %72 = OpLoad %Payload %payload
+         %73 = OpCompositeExtract %v3float %72 0
+         %74 = OpCompositeExtract %float %73 0
+         %75 = OpCompositeExtract %float %73 1
+         %76 = OpCompositeExtract %float %73 2
+         %77 = OpCompositeConstruct %v4float %74 %75 %76 %float_1
+         %78 = OpLoad %type_2d_image %g_output
+               OpImageWrite %78 %53 %77 None
+               OpReturn
+               OpFunctionEnd
+ %rmiss_main = OpFunction %void None %46
+         %79 = OpLabel
+               OpStore %payload_0 %50
+               OpReturn
+               OpFunctionEnd
+ %rchit_main = OpFunction %void None %46
+         %80 = OpLabel
+         %81 = OpLoad %Attribute %attribs
+         %82 = OpCompositeExtract %v2float %81 0
+         %83 = OpCompositeExtract %float %82 0
+         %84 = OpFSub %float %float_1 %83
+         %85 = OpCompositeExtract %float %82 1
+         %86 = OpFSub %float %84 %85
+         %87 = OpCompositeConstruct %v3float %86 %83 %85
+         %88 = OpCompositeConstruct %Payload %87
+               OpStore %payload_1 %88
+               OpReturn
+               OpFunctionEnd
