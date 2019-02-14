@@ -6,3 +6,7 @@ edition = "2018"
 
 [dependencies]
 ash = { git = "https://github.com/gwihlidal/ash.git", branch = "ray_tracing" }
+winit = "0.18.1"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.6", features = ["windef", "winuser"] }
