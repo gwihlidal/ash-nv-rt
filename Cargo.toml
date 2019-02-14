@@ -1,0 +1,8 @@
+[package]
+name = "ash-nv-rt"
+version = "0.1.0"
+authors = ["Graham Wihlidal <graham@wihlidal.ca>"]
+edition = "2018"
+
+[dependencies]
+ash = { git = "https://github.com/gwihlidal/ash.git", branch = "ray_tracing" }
