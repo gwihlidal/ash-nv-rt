@@ -1,0 +1,66 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 7
+; Bound: 30
+; Schema: 0
+               OpCapability ShaderNonUniformEXT
+               OpCapability RuntimeDescriptorArrayEXT
+               OpCapability UniformBufferArrayNonUniformIndexingEXT
+               OpCapability RayTracingNV
+               OpExtension "SPV_EXT_descriptor_indexing"
+               OpExtension "SPV_NV_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint ClosestHitNV %main "main" %gl_InstanceCustomIndexNV
+               OpSource GLSL 460
+               OpSourceExtension "GL_EXT_nonuniform_qualifier"
+               OpSourceExtension "GL_NV_ray_tracing"
+               OpName %main "main"
+               OpName %color "color"
+               OpName %UniformBuffer "UniformBuffer"
+               OpMemberName %UniformBuffer 0 "color"
+               OpName %uniformBuffers "uniformBuffers"
+               OpName %gl_InstanceCustomIndexNV "gl_InstanceCustomIndexNV"
+               OpName %hitValue "hitValue"
+               OpName %attribs "attribs"
+               OpMemberDecorate %UniformBuffer 0 Offset 0
+               OpDecorate %UniformBuffer Block
+               OpDecorate %uniformBuffers DescriptorSet 0
+               OpDecorate %uniformBuffers Binding 2
+               OpDecorate %gl_InstanceCustomIndexNV BuiltIn InstanceCustomIndexNV
+               OpDecorate %gl_InstanceCustomIndexNV NonUniformEXT
+               OpDecorate %17 NonUniformEXT
+               OpDecorate %21 NonUniformEXT
+               OpDecorate %hitValue Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Function_v3uint = OpTypePointer Function %v3uint
+%UniformBuffer = OpTypeStruct %v3uint
+%_runtimearr_UniformBuffer = OpTypeRuntimeArray %UniformBuffer
+%_ptr_Uniform__runtimearr_UniformBuffer = OpTypePointer Uniform %_runtimearr_UniformBuffer
+%uniformBuffers = OpVariable %_ptr_Uniform__runtimearr_UniformBuffer Uniform
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%gl_InstanceCustomIndexNV = OpVariable %_ptr_Input_int Input
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_v3uint = OpTypePointer Uniform %v3uint
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_IncomingRayPayloadNV_v3float = OpTypePointer IncomingRayPayloadNV %v3float
+   %hitValue = OpVariable %_ptr_IncomingRayPayloadNV_v3float IncomingRayPayloadNV
+%_ptr_HitAttributeNV_v3float = OpTypePointer HitAttributeNV %v3float
+    %attribs = OpVariable %_ptr_HitAttributeNV_v3float HitAttributeNV
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+      %color = OpVariable %_ptr_Function_v3uint Function
+         %17 = OpLoad %int %gl_InstanceCustomIndexNV
+         %20 = OpAccessChain %_ptr_Uniform_v3uint %uniformBuffers %17 %int_0
+         %21 = OpLoad %v3uint %20
+               OpStore %color %21
+         %26 = OpLoad %v3uint %color
+         %27 = OpConvertUToF %v3float %26
+               OpStore %hitValue %27
+               OpReturn
+               OpFunctionEnd
