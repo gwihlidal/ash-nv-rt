@@ -1,3 +1,3 @@
-docker run --entrypoint "/app/dxc/bin/dxc" --rm -v $(pwd):$(pwd) -w $(pwd) gwihlidal/docker-shader:vk_rt -T lib_6_3 triangle.bindless.rchit.hlsl -Fo triangle.hlsl_bindless_rchit.dxil
-docker run --entrypoint "/app/dxc/bin/dxc" --rm -v $(pwd):$(pwd) -w $(pwd) gwihlidal/docker-shader:vk_rt -T lib_6_3 -spirv triangle.bindless.rchit.hlsl -Fo triangle.hlsl_bindless_rchit.spv
-docker run --entrypoint "/app/vulkan/glslangValidator" --rm -v $(pwd):$(pwd) -w $(pwd) gwihlidal/docker-shader:vk_rt -V -o triangle.glsl_bindless_rchit.spv triangle.bindless.rchit.glsl
+docker run --entrypoint "/app/dxc/bin/dxc" --rm -v $(pwd):$(pwd) -w $(pwd) gwihlidal/docker-shader:5 -T lib_6_3 triangle.bindless.rchit.hlsl -Fo triangle.hlsl_bindless_rchit.dxil
+docker run --entrypoint "/app/dxc/bin/dxc" --rm -v $(pwd):$(pwd) -w $(pwd) gwihlidal/docker-shader:5 -T lib_6_3 -spirv triangle.bindless.rchit.hlsl -Fo triangle.hlsl_bindless_rchit.spv
+docker run --entrypoint "/app/vulkan/glslangValidator" --rm -v $(pwd):$(pwd) -w $(pwd) gwihlidal/docker-shader:5 -V -o triangle.glsl_bindless_rchit.spv triangle.bindless.rchit.glsl
