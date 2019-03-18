@@ -1,0 +1,31 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Google spiregg; 0
+; Bound: 15
+; Schema: 0
+               OpCapability RayTracingNV
+               OpExtension "SPV_NV_ray_tracing"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint MissNV %main "main"
+               OpSource HLSL 630
+               OpName %Payload "Payload"
+               OpMemberName %Payload 0 "hitValue"
+               OpName %payload "payload"
+               OpName %main "main"
+      %float = OpTypeFloat 32
+    %float_0 = OpConstant %float 0
+%float_0_100000001 = OpConstant %float 0.100000001
+%float_0_300000012 = OpConstant %float 0.300000012
+    %v3float = OpTypeVector %float 3
+          %9 = OpConstantComposite %v3float %float_0 %float_0_100000001 %float_0_300000012
+    %Payload = OpTypeStruct %v3float
+%_ptr_IncomingRayPayloadNV_Payload = OpTypePointer IncomingRayPayloadNV %Payload
+       %void = OpTypeVoid
+         %12 = OpTypeFunction %void
+    %payload = OpVariable %_ptr_IncomingRayPayloadNV_Payload IncomingRayPayloadNV
+         %13 = OpConstantComposite %Payload %9
+       %main = OpFunction %void None %12
+         %14 = OpLabel
+               OpStore %payload %13
+               OpReturn
+               OpFunctionEnd

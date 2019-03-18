@@ -1,0 +1,42 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Google spiregg; 0
+; Bound: 23
+; Schema: 0
+               OpCapability RayTracingNV
+               OpExtension "SPV_NV_ray_tracing"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint ClosestHitNV %main "main"
+               OpSource HLSL 630
+               OpName %Payload "Payload"
+               OpMemberName %Payload 0 "hitValue"
+               OpName %payload "payload"
+               OpName %Attribute "Attribute"
+               OpMemberName %Attribute 0 "bary"
+               OpName %attribs "attribs"
+               OpName %main "main"
+      %float = OpTypeFloat 32
+    %float_1 = OpConstant %float 1
+    %v3float = OpTypeVector %float 3
+    %Payload = OpTypeStruct %v3float
+%_ptr_IncomingRayPayloadNV_Payload = OpTypePointer IncomingRayPayloadNV %Payload
+    %v2float = OpTypeVector %float 2
+  %Attribute = OpTypeStruct %v2float
+%_ptr_HitAttributeNV_Attribute = OpTypePointer HitAttributeNV %Attribute
+       %void = OpTypeVoid
+         %13 = OpTypeFunction %void
+    %payload = OpVariable %_ptr_IncomingRayPayloadNV_Payload IncomingRayPayloadNV
+    %attribs = OpVariable %_ptr_HitAttributeNV_Attribute HitAttributeNV
+       %main = OpFunction %void None %13
+         %14 = OpLabel
+         %15 = OpLoad %Attribute %attribs
+         %16 = OpCompositeExtract %v2float %15 0
+         %17 = OpCompositeExtract %float %16 0
+         %18 = OpFSub %float %float_1 %17
+         %19 = OpCompositeExtract %float %16 1
+         %20 = OpFSub %float %18 %19
+         %21 = OpCompositeConstruct %v3float %20 %17 %19
+         %22 = OpCompositeConstruct %Payload %21
+               OpStore %payload %22
+               OpReturn
+               OpFunctionEnd

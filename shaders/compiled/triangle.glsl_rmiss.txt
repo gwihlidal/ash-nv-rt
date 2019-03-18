@@ -1,0 +1,30 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Khronos Glslang Reference Front End; 7
+; Bound: 14
+; Schema: 0
+               OpCapability RayTracingNV
+               OpExtension "SPV_NV_ray_tracing"
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint MissNV %main "main"
+               OpSource GLSL 460
+               OpSourceExtension "GL_NV_ray_tracing"
+               OpName %main "main"
+               OpName %hitValue "hitValue"
+               OpDecorate %hitValue Location 0
+       %void = OpTypeVoid
+          %3 = OpTypeFunction %void
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%_ptr_IncomingRayPayloadNV_v3float = OpTypePointer IncomingRayPayloadNV %v3float
+   %hitValue = OpVariable %_ptr_IncomingRayPayloadNV_v3float IncomingRayPayloadNV
+    %float_0 = OpConstant %float 0
+%float_0_100000001 = OpConstant %float 0.100000001
+%float_0_300000012 = OpConstant %float 0.300000012
+         %13 = OpConstantComposite %v3float %float_0 %float_0_100000001 %float_0_300000012
+       %main = OpFunction %void None %3
+          %5 = OpLabel
+               OpStore %hitValue %13
+               OpReturn
+               OpFunctionEnd

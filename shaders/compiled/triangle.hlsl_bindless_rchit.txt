@@ -1,0 +1,55 @@
+; SPIR-V
+; Version: 1.0
+; Generator: Google spiregg; 0
+; Bound: 25
+; Schema: 0
+               OpCapability RayTracingNV
+               OpCapability RuntimeDescriptorArrayEXT
+               OpCapability ShaderNonUniformEXT
+               OpExtension "SPV_NV_ray_tracing"
+               OpExtension "SPV_EXT_descriptor_indexing"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint ClosestHitNV %main "main" %2
+               OpSource HLSL 630
+               OpName %type_ConstantBuffer_UniformBuffer "type.ConstantBuffer.UniformBuffer"
+               OpMemberName %type_ConstantBuffer_UniformBuffer 0 "color"
+               OpName %g_uniformBuffers "g_uniformBuffers"
+               OpName %Payload "Payload"
+               OpMemberName %Payload 0 "hitValue"
+               OpName %payload "payload"
+               OpName %main "main"
+               OpDecorate %2 BuiltIn InstanceCustomIndexNV
+               OpDecorate %g_uniformBuffers DescriptorSet 0
+               OpDecorate %g_uniformBuffers Binding 2
+               OpMemberDecorate %type_ConstantBuffer_UniformBuffer 0 Offset 0
+               OpDecorate %type_ConstantBuffer_UniformBuffer Block
+               OpDecorate %7 NonUniformEXT
+               OpDecorate %8 NonUniformEXT
+               OpDecorate %9 NonUniformEXT
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+      %float = OpTypeFloat 32
+    %v3float = OpTypeVector %float 3
+%type_ConstantBuffer_UniformBuffer = OpTypeStruct %v3float
+%_runtimearr_type_ConstantBuffer_UniformBuffer = OpTypeRuntimeArray %type_ConstantBuffer_UniformBuffer
+%_ptr_Uniform__runtimearr_type_ConstantBuffer_UniformBuffer = OpTypePointer Uniform %_runtimearr_type_ConstantBuffer_UniformBuffer
+    %Payload = OpTypeStruct %v3float
+%_ptr_IncomingRayPayloadNV_Payload = OpTypePointer IncomingRayPayloadNV %Payload
+%_ptr_Input_uint = OpTypePointer Input %uint
+       %void = OpTypeVoid
+         %20 = OpTypeFunction %void
+%_ptr_Uniform_v3float = OpTypePointer Uniform %v3float
+%g_uniformBuffers = OpVariable %_ptr_Uniform__runtimearr_type_ConstantBuffer_UniformBuffer Uniform
+    %payload = OpVariable %_ptr_IncomingRayPayloadNV_Payload IncomingRayPayloadNV
+          %2 = OpVariable %_ptr_Input_uint Input
+       %main = OpFunction %void None %20
+         %22 = OpLabel
+          %7 = OpLoad %uint %2
+          %8 = OpAccessChain %_ptr_Uniform_v3float %g_uniformBuffers %7 %int_0
+          %9 = OpLoad %v3float %8
+         %23 = OpVectorShuffle %v3float %9 %9 0 1 0
+         %24 = OpCompositeConstruct %Payload %23
+               OpStore %payload %24
+               OpReturn
+               OpFunctionEnd
