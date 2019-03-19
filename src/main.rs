@@ -298,6 +298,9 @@ struct RayTracingApp {
     pipeline_layout: vk::PipelineLayout,
     pipeline: vk::Pipeline,
     shader_binding_table: Option<BufferResource>,
+    color0_buffer: Option<BufferResource>,
+    color1_buffer: Option<BufferResource>,
+    color2_buffer: Option<BufferResource>,
     descriptor_pool: vk::DescriptorPool,
     descriptor_set: vk::DescriptorSet,
     offscreen_target: ImageResource,
@@ -325,6 +328,9 @@ impl RayTracingApp {
             pipeline_layout: vk::PipelineLayout::null(),
             pipeline: vk::Pipeline::null(),
             shader_binding_table: None,
+            color0_buffer: None,
+            color1_buffer: None,
+            color2_buffer: None,
             descriptor_pool: vk::DescriptorPool::null(),
             descriptor_set: vk::DescriptorSet::null(),
             offscreen_target: ImageResource::new(base),
@@ -338,6 +344,7 @@ impl RayTracingApp {
     fn initialize(&mut self) {
         self.create_offscreen_target();
         self.create_acceleration_structures();
+        self.create_bindless_uniform_buffers();
         self.create_pipeline();
         self.create_shader_binding_table();
         self.create_descriptor_set();
@@ -360,6 +367,10 @@ impl RayTracingApp {
                 .destroy_descriptor_pool(self.descriptor_pool, None);
 
             self.shader_binding_table = None;
+
+            self.color0_buffer = None;
+            self.color1_buffer = None;
+            self.color2_buffer = None;
 
             self.base.device.destroy_pipeline(self.pipeline, None);
             self.base
@@ -756,6 +767,9 @@ impl RayTracingApp {
     }
 
     fn create_pipeline(&mut self) {
+        let binding_flags = vk::DescriptorSetLayoutBindingFlagsCreateInfoEXT::builder()
+            .binding_flags(&[vk::DescriptorBindingFlagsEXT::VARIABLE_DESCRIPTOR_COUNT])
+            .build();
         unsafe {
             self.descriptor_set_layout = self
                 .base
@@ -775,7 +789,14 @@ impl RayTracingApp {
                                 .stage_flags(vk::ShaderStageFlags::RAYGEN_NV)
                                 .binding(1)
                                 .build(),
+                            vk::DescriptorSetLayoutBinding::builder()
+                                .descriptor_count(3)
+                                .descriptor_type(vk::DescriptorType::UNIFORM_BUFFER)
+                                .stage_flags(vk::ShaderStageFlags::CLOSEST_HIT_NV)
+                                .binding(2)
+                                .build(),
                         ])
+                        .next(&binding_flags)
                         .build(),
                     None,
                 )
@@ -960,6 +981,41 @@ impl RayTracingApp {
         self.shader_binding_table = Some(shader_binding_table);
     }
 
+    fn create_bindless_uniform_buffers(&mut self) {
+        let color0: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
+        let color1: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
+        let color2: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
+
+        let buffer_size = (std::mem::size_of::<f32>() * 4) as vk::DeviceSize;
+
+        let mut color0_buffer = BufferResource::new(
+            buffer_size,
+            vk::BufferUsageFlags::UNIFORM_BUFFER,
+            vk::MemoryPropertyFlags::HOST_VISIBLE,
+            self.base.clone(),
+        );
+        color0_buffer.store(&color0);
+        self.color0_buffer = Some(color0_buffer);
+
+        let mut color1_buffer = BufferResource::new(
+            buffer_size,
+            vk::BufferUsageFlags::UNIFORM_BUFFER,
+            vk::MemoryPropertyFlags::HOST_VISIBLE,
+            self.base.clone(),
+        );
+        color1_buffer.store(&color1);
+        self.color1_buffer = Some(color1_buffer);
+
+        let mut color2_buffer = BufferResource::new(
+            buffer_size,
+            vk::BufferUsageFlags::UNIFORM_BUFFER,
+            vk::MemoryPropertyFlags::HOST_VISIBLE,
+            self.base.clone(),
+        );
+        color2_buffer.store(&color2);
+        self.color2_buffer = Some(color2_buffer);
+    }
+
     fn create_descriptor_set(&mut self) {
         unsafe {
             let descriptor_sizes = [
@@ -970,6 +1026,10 @@ impl RayTracingApp {
                 vk::DescriptorPoolSize {
                     ty: vk::DescriptorType::STORAGE_IMAGE,
                     descriptor_count: 1,
+                },
+                vk::DescriptorPoolSize {
+                    ty: vk::DescriptorType::UNIFORM_BUFFER,
+                    descriptor_count: 3,
                 },
             ];
 
@@ -1024,9 +1084,31 @@ impl RayTracingApp {
                 .image_info(&[image_info])
                 .build();
 
+            // Update descriptors for bindless uniform buffers
+
+            let buffer0_info = vk::DescriptorBufferInfo::builder()
+                .buffer(self.color0_buffer.as_ref().unwrap().buffer)
+                .build();
+
+            let buffer1_info = vk::DescriptorBufferInfo::builder()
+                .buffer(self.color1_buffer.as_ref().unwrap().buffer)
+                .build();
+
+            let buffer2_info = vk::DescriptorBufferInfo::builder()
+                .buffer(self.color2_buffer.as_ref().unwrap().buffer)
+                .build();
+
+            let buffers_write = vk::WriteDescriptorSet::builder()
+                .dst_set(self.descriptor_set)
+                .dst_binding(2)
+                .dst_array_element(0)
+                .descriptor_type(vk::DescriptorType::UNIFORM_BUFFER)
+                .buffer_info(&[buffer0_info, buffer1_info, buffer2_info])
+                .build();
+
             self.base
                 .device
-                .update_descriptor_sets(&[accel_write, image_write], &[]);
+                .update_descriptor_sets(&[accel_write, image_write, buffers_write], &[]);
         }
     }
 
