@@ -804,8 +804,9 @@ impl RayTracingApp {
 
             let use_lib = false;
             let use_hlsl = true;
+            let use_bindless = true;
             if use_lib && use_hlsl {
-                let lib_path = Path::new("shaders/triangle.hlsl_lib.spv");
+                let lib_path = Path::new("shaders/compiled/triangle.hlsl_lib.spv");
                 let mut lib_file = File::open(lib_path)
                     .expect(&format!("Could not open lib file: {:?}", lib_path));
 
@@ -818,19 +819,26 @@ impl RayTracingApp {
                     .create_shader_module(&lib_shader_info, None)
                     .expect("Library shader module error");
             } else {
-                let (rgen_path, rchit_path, rmiss_path) = if use_hlsl {
-                    (
-                        Path::new("shaders/triangle.hlsl_rgen.spv"),
-                        Path::new("shaders/triangle.hlsl_rchit.spv"),
-                        Path::new("shaders/triangle.hlsl_rmiss.spv"),
-                    )
+                let lang = if use_hlsl {
+                    "hlsl_"
                 } else {
-                    (
-                        Path::new("shaders/triangle.glsl_rgen.spv"),
-                        Path::new("shaders/triangle.glsl_rchit.spv"),
-                        Path::new("shaders/triangle.glsl_rmiss.spv"),
-                    )
+                    "glsl_"
                 };
+
+                let variant = if use_bindless {
+                    "bindless_"
+                } else {
+                    ""
+                };
+
+                let rgen_path = format!("shaders/compiled/triangle.{}rgen.spv", lang);
+                let rgen_path = Path::new(&rgen_path);
+
+                let rchit_path = format!("shaders/compiled/triangle.{}{}rchit.spv", lang, variant);
+                let rchit_path = Path::new(&rchit_path);
+
+                let rmiss_path = format!("shaders/compiled/triangle.{}rmiss.spv", lang);
+                let rmiss_path = Path::new(&rmiss_path);
 
                 let mut rgen_file = File::open(&rgen_path)
                     .expect(&format!("Could not open rgen file: {:?}", rgen_path));
