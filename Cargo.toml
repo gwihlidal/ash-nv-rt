@@ -1,12 +1,12 @@
 [package]
 name = "ash-nv-rt"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Graham Wihlidal <graham@wihlidal.ca>"]
 edition = "2018"
 
 [dependencies]
 ash = { git = "https://github.com/gwihlidal/ash.git", branch = "ray_tracing" }
-winit = "0.18.1"
+winit = "0.19"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3.6", features = ["windef", "winuser"] }
