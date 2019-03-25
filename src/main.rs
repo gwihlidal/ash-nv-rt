@@ -545,24 +545,56 @@ impl RayTracingApp {
                 .get_acceleration_structure_handle(self.bottom_as)
                 .unwrap();
 
-            let transform: [f32; 12] = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0];
-            let instance = GeometryInstance::new(
-                transform,
-                0,
-                0xff,
-                0,
-                vk::GeometryInstanceFlagsNV::TRIANGLE_CULL_DISABLE,
-                accel_handle,
-            );
+            let transform_0: [f32; 12] = [
+                1.0, 0.0, 0.0, -1.5,
+                0.0, 1.0, 0.0, 1.1,
+                0.0, 0.0, 1.0, 0.0];
 
-            let instance_buffer_size = std::mem::size_of::<GeometryInstance>();
+            let transform_1: [f32; 12] = [
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, -1.1,
+                0.0, 0.0, 1.0, 0.0];
+
+            let transform_2: [f32; 12] = [
+                1.0, 0.0, 0.0, 1.5,
+                0.0, 1.0, 0.0, 1.1,
+                0.0, 0.0, 1.0, 0.0];
+
+            let instances = vec![
+                GeometryInstance::new(
+                    transform_0,
+                    0 /* instance id */,
+                    0xff,
+                    0,
+                    vk::GeometryInstanceFlagsNV::TRIANGLE_CULL_DISABLE,
+                    accel_handle,
+                ),
+                GeometryInstance::new(
+                    transform_1,
+                    1 /* instance id */,
+                    0xff,
+                    0,
+                    vk::GeometryInstanceFlagsNV::TRIANGLE_CULL_DISABLE,
+                    accel_handle,
+                ),
+                GeometryInstance::new(
+                    transform_2,
+                    2 /* instance id */,
+                    0xff,
+                    0,
+                    vk::GeometryInstanceFlagsNV::TRIANGLE_CULL_DISABLE,
+                    accel_handle,
+                )
+            ];
+
+            let instance_buffer_size = std::mem::size_of::<GeometryInstance>() * instances.len();
             let mut instance_buffer = BufferResource::new(
                 instance_buffer_size as u64,
                 vk::BufferUsageFlags::RAY_TRACING_NV,
                 vk::MemoryPropertyFlags::HOST_VISIBLE | vk::MemoryPropertyFlags::HOST_COHERENT,
                 self.base.clone(),
             );
-            instance_buffer.store(&[instance]);
+            instance_buffer.store(&instances);
 
             // Create top-level acceleration structure
 
@@ -571,7 +603,7 @@ impl RayTracingApp {
                 .info(
                     vk::AccelerationStructureInfoNV::builder()
                         .ty(vk::AccelerationStructureTypeNV::TOP_LEVEL)
-                        .instance_count(1)
+                        .instance_count(instances.len() as u32)
                         .build(),
                 )
                 .build();
@@ -715,7 +747,7 @@ impl RayTracingApp {
                 build_command_buffer,
                 &vk::AccelerationStructureInfoNV::builder()
                     .ty(vk::AccelerationStructureTypeNV::TOP_LEVEL)
-                    .instance_count(1)
+                    .instance_count(instances.len() as u32)
                     .build(),
                 instance_buffer.buffer,
                 0,
@@ -756,7 +788,7 @@ impl RayTracingApp {
                 Ok(_) => println!("Successfully built acceleration structures"),
                 Err(err) => {
                     println!("Failed to build acceleration structures: {:?}", err);
-                    panic!("BLAH");
+                    panic!("GPU ERROR");
                 }
             }
 
@@ -990,11 +1022,11 @@ impl RayTracingApp {
     }
 
     fn create_bindless_uniform_buffers(&mut self) {
-        let color0: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
-        let color1: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
-        let color2: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
+        let color0: [f32; 3] = [1.0, 0.0, 0.0];
+        let color1: [f32; 3] = [0.0, 1.0, 0.0];
+        let color2: [f32; 3] = [0.6, 0.6, 0.0];
 
-        let buffer_size = (std::mem::size_of::<f32>() * 4) as vk::DeviceSize;
+        let buffer_size = (std::mem::size_of::<f32>() * 3) as vk::DeviceSize;
 
         let mut color0_buffer = BufferResource::new(
             buffer_size,
