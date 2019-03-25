@@ -1224,7 +1224,7 @@ impl RayTracingApp {
             vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
         );
 
-        let region = vk::ImageCopy::builder()
+        let region = vk::ImageBlit::builder()
             .src_subresource(
                 vk::ImageSubresourceLayers::builder()
                     .aspect_mask(vk::ImageAspectFlags::COLOR)
@@ -1237,23 +1237,33 @@ impl RayTracingApp {
                     .layer_count(1)
                     .build(),
             )
-            .extent(
-                vk::Extent3D::builder()
-                    .width(self.base.window_width)
-                    .height(self.base.window_height)
-                    .depth(1)
-                    .build(),
+            .src_offsets(
+                [vk::Offset3D::default(),
+                vk::Offset3D::builder()
+                .x(self.base.window_width as i32)
+                .y(self.base.window_height as i32)
+                .z(1)
+                .build()]
+            )
+            .dst_offsets(
+                [vk::Offset3D::default(),
+                vk::Offset3D::builder()
+                .x(self.base.window_width as i32)
+                .y(self.base.window_height as i32)
+                .z(1)
+                .build()]
             )
             .build();
 
         unsafe {
-            self.base.device.cmd_copy_image(
+            self.base.device.cmd_blit_image(
                 command_buffer,
                 self.offscreen_target.image,
                 vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
                 present_image,
                 vk::ImageLayout::TRANSFER_DST_OPTIMAL,
                 &[region],
+                vk::Filter::NEAREST
             );
         }
 
