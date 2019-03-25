@@ -545,25 +545,19 @@ impl RayTracingApp {
                 .get_acceleration_structure_handle(self.bottom_as)
                 .unwrap();
 
-            let transform_0: [f32; 12] = [
-                1.0, 0.0, 0.0, -1.5,
-                0.0, 1.0, 0.0, 1.1,
-                0.0, 0.0, 1.0, 0.0];
+            let transform_0: [f32; 12] =
+                [1.0, 0.0, 0.0, -1.5, 0.0, 1.0, 0.0, 1.1, 0.0, 0.0, 1.0, 0.0];
 
-            let transform_1: [f32; 12] = [
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, -1.1,
-                0.0, 0.0, 1.0, 0.0];
+            let transform_1: [f32; 12] =
+                [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.1, 0.0, 0.0, 1.0, 0.0];
 
-            let transform_2: [f32; 12] = [
-                1.0, 0.0, 0.0, 1.5,
-                0.0, 1.0, 0.0, 1.1,
-                0.0, 0.0, 1.0, 0.0];
+            let transform_2: [f32; 12] =
+                [1.0, 0.0, 0.0, 1.5, 0.0, 1.0, 0.0, 1.1, 0.0, 0.0, 1.0, 0.0];
 
             let instances = vec![
                 GeometryInstance::new(
                     transform_0,
-                    0 /* instance id */,
+                    0, /* instance id */
                     0xff,
                     0,
                     vk::GeometryInstanceFlagsNV::TRIANGLE_CULL_DISABLE,
@@ -571,7 +565,7 @@ impl RayTracingApp {
                 ),
                 GeometryInstance::new(
                     transform_1,
-                    1 /* instance id */,
+                    1, /* instance id */
                     0xff,
                     0,
                     vk::GeometryInstanceFlagsNV::TRIANGLE_CULL_DISABLE,
@@ -579,12 +573,12 @@ impl RayTracingApp {
                 ),
                 GeometryInstance::new(
                     transform_2,
-                    2 /* instance id */,
+                    2, /* instance id */
                     0xff,
                     0,
                     vk::GeometryInstanceFlagsNV::TRIANGLE_CULL_DISABLE,
                     accel_handle,
-                )
+                ),
             ];
 
             let instance_buffer_size = std::mem::size_of::<GeometryInstance>() * instances.len();
@@ -800,7 +794,11 @@ impl RayTracingApp {
 
     fn create_pipeline(&mut self) {
         let binding_flags = vk::DescriptorSetLayoutBindingFlagsCreateInfoEXT::builder()
-            .binding_flags(&[vk::DescriptorBindingFlagsEXT::empty(), vk::DescriptorBindingFlagsEXT::empty(), vk::DescriptorBindingFlagsEXT::VARIABLE_DESCRIPTOR_COUNT])
+            .binding_flags(&[
+                vk::DescriptorBindingFlagsEXT::empty(),
+                vk::DescriptorBindingFlagsEXT::empty(),
+                vk::DescriptorBindingFlagsEXT::VARIABLE_DESCRIPTOR_COUNT,
+            ])
             .build();
         unsafe {
             self.descriptor_set_layout = self
@@ -851,17 +849,9 @@ impl RayTracingApp {
                     .create_shader_module(&lib_shader_info, None)
                     .expect("Library shader module error");
             } else {
-                let lang = if use_hlsl {
-                    "hlsl_"
-                } else {
-                    "glsl_"
-                };
+                let lang = if use_hlsl { "hlsl_" } else { "glsl_" };
 
-                let variant = if use_bindless {
-                    "bindless_"
-                } else {
-                    ""
-                };
+                let variant = if use_bindless { "bindless_" } else { "" };
 
                 let rgen_path = format!("shaders/compiled/triangle.{}rgen.spv", lang);
                 let rgen_path = Path::new(&rgen_path);
@@ -1127,15 +1117,11 @@ impl RayTracingApp {
             let buffer1 = self.color1_buffer.as_ref().unwrap().buffer;
             let buffer2 = self.color2_buffer.as_ref().unwrap().buffer;
 
-            let buffer_info = [vk::DescriptorBufferInfo::builder()
-                .buffer(buffer0)
-                .build(),
-                vk::DescriptorBufferInfo::builder()
-                .buffer(buffer1)
-                .build(),
-                vk::DescriptorBufferInfo::builder()
-                .buffer(buffer2)
-                .build()];
+            let buffer_info = [
+                vk::DescriptorBufferInfo::builder().buffer(buffer0).build(),
+                vk::DescriptorBufferInfo::builder().buffer(buffer1).build(),
+                vk::DescriptorBufferInfo::builder().buffer(buffer2).build(),
+            ];
 
             let buffers_write = vk::WriteDescriptorSet::builder()
                 .dst_set(self.descriptor_set)
@@ -1236,22 +1222,22 @@ impl RayTracingApp {
                     .layer_count(1)
                     .build(),
             )
-            .src_offsets(
-                [vk::Offset3D::default(),
+            .src_offsets([
+                vk::Offset3D::default(),
                 vk::Offset3D::builder()
-                .x(self.base.window_width as i32)
-                .y(self.base.window_height as i32)
-                .z(1)
-                .build()]
-            )
-            .dst_offsets(
-                [vk::Offset3D::default(),
+                    .x(self.base.window_width as i32)
+                    .y(self.base.window_height as i32)
+                    .z(1)
+                    .build(),
+            ])
+            .dst_offsets([
+                vk::Offset3D::default(),
                 vk::Offset3D::builder()
-                .x(self.base.window_width as i32)
-                .y(self.base.window_height as i32)
-                .z(1)
-                .build()]
-            )
+                    .x(self.base.window_width as i32)
+                    .y(self.base.window_height as i32)
+                    .z(1)
+                    .build(),
+            ])
             .build();
 
         unsafe {
@@ -1262,7 +1248,7 @@ impl RayTracingApp {
                 present_image,
                 vk::ImageLayout::TRANSFER_DST_OPTIMAL,
                 &[region],
-                vk::Filter::NEAREST
+                vk::Filter::NEAREST,
             );
         }
 
@@ -1611,10 +1597,8 @@ impl Base {
     pub fn new(window_width: u32, window_height: u32) -> Self {
         unsafe {
             let events_loop = winit::EventsLoop::new();
-            let logical_dimensions = winit::dpi::LogicalSize::new(
-                    window_width as f64,
-                    window_height as f64,
-                );
+            let logical_dimensions =
+                winit::dpi::LogicalSize::new(window_width as f64, window_height as f64);
             let window = winit::WindowBuilder::new()
                 .with_title("Rust Vulkan NV Ray Tracing w/ HLSL")
                 .with_dimensions(logical_dimensions.clone())
