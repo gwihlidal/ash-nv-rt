@@ -768,7 +768,7 @@ impl RayTracingApp {
 
     fn create_pipeline(&mut self) {
         let binding_flags = vk::DescriptorSetLayoutBindingFlagsCreateInfoEXT::builder()
-            .binding_flags(&[vk::DescriptorBindingFlagsEXT::VARIABLE_DESCRIPTOR_COUNT])
+            .binding_flags(&[vk::DescriptorBindingFlagsEXT::empty(), vk::DescriptorBindingFlagsEXT::empty(), vk::DescriptorBindingFlagsEXT::VARIABLE_DESCRIPTOR_COUNT])
             .build();
         unsafe {
             self.descriptor_set_layout = self
