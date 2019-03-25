@@ -1100,7 +1100,7 @@ impl RayTracingApp {
                 .acceleration_structures(&accel_structs)
                 .build();
 
-            let mut accel_write = vk::WriteDescriptorSet::builder()
+            let accel_write = vk::WriteDescriptorSet::builder()
                 .dst_set(self.descriptor_set)
                 .dst_binding(0)
                 .dst_array_element(0)
@@ -1108,42 +1108,41 @@ impl RayTracingApp {
                 .next(&mut accel_info)
                 .build();
 
-            // This is only set by the builder for images, buffers, or views; need to set explicitly after
-            accel_write.descriptor_count = 1;
-
-            let image_info = vk::DescriptorImageInfo::builder()
+            let image_info = [vk::DescriptorImageInfo::builder()
                 .image_layout(vk::ImageLayout::GENERAL)
                 .image_view(self.offscreen_target.view)
-                .build();
+                .build()];
 
             let image_write = vk::WriteDescriptorSet::builder()
                 .dst_set(self.descriptor_set)
                 .dst_binding(1)
                 .dst_array_element(0)
                 .descriptor_type(vk::DescriptorType::STORAGE_IMAGE)
-                .image_info(&[image_info])
+                .image_info(&image_info)
                 .build();
 
             // Update descriptors for bindless uniform buffers
 
-            let buffer0_info = vk::DescriptorBufferInfo::builder()
-                .buffer(self.color0_buffer.as_ref().unwrap().buffer)
-                .build();
+            let buffer0 = self.color0_buffer.as_ref().unwrap().buffer;
+            let buffer1 = self.color1_buffer.as_ref().unwrap().buffer;
+            let buffer2 = self.color2_buffer.as_ref().unwrap().buffer;
 
-            let buffer1_info = vk::DescriptorBufferInfo::builder()
-                .buffer(self.color1_buffer.as_ref().unwrap().buffer)
-                .build();
-
-            let buffer2_info = vk::DescriptorBufferInfo::builder()
-                .buffer(self.color2_buffer.as_ref().unwrap().buffer)
-                .build();
+            let buffer_info = [vk::DescriptorBufferInfo::builder()
+                .buffer(buffer0)
+                .build(),
+                vk::DescriptorBufferInfo::builder()
+                .buffer(buffer1)
+                .build(),
+                vk::DescriptorBufferInfo::builder()
+                .buffer(buffer2)
+                .build()];
 
             let buffers_write = vk::WriteDescriptorSet::builder()
                 .dst_set(self.descriptor_set)
                 .dst_binding(2)
                 .dst_array_element(0)
                 .descriptor_type(vk::DescriptorType::UNIFORM_BUFFER)
-                .buffer_info(&[buffer0_info, buffer1_info, buffer2_info])
+                .buffer_info(&buffer_info)
                 .build();
 
             self.base
