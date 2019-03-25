@@ -5,7 +5,7 @@ authors = ["Graham Wihlidal <graham@wihlidal.ca>"]
 edition = "2018"
 
 [dependencies]
-ash = { git = "https://github.com/gwihlidal/ash.git", branch = "ray_tracing" }
+ash = "0.28.0"
 winit = "0.19"
 
 [target.'cfg(windows)'.dependencies]

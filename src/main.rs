@@ -16,7 +16,7 @@ use ash::extensions::khr::Win32Surface;
 
 use ash::extensions::nv;
 use ash::util::*;
-use ash::version::{DeviceV1_0, EntryV1_0, InstanceV1_0};
+use ash::version::{DeviceV1_0, EntryV1_0, InstanceV1_0, InstanceV1_1};
 use ash::{vk, Device, Entry, Instance};
 use std::cell::RefCell;
 use std::default::Default;
@@ -793,7 +793,7 @@ impl RayTracingApp {
     }
 
     fn create_pipeline(&mut self) {
-        let binding_flags = vk::DescriptorSetLayoutBindingFlagsCreateInfoEXT::builder()
+        let mut binding_flags = vk::DescriptorSetLayoutBindingFlagsCreateInfoEXT::builder()
             .binding_flags(&[
                 vk::DescriptorBindingFlagsEXT::empty(),
                 vk::DescriptorBindingFlagsEXT::empty(),
@@ -826,7 +826,7 @@ impl RayTracingApp {
                                 .binding(2)
                                 .build(),
                         ])
-                        .next(&binding_flags)
+                        .push_next(&mut binding_flags)
                         .build(),
                     None,
                 )
@@ -1090,13 +1090,16 @@ impl RayTracingApp {
                 .acceleration_structures(&accel_structs)
                 .build();
 
-            let accel_write = vk::WriteDescriptorSet::builder()
+            let mut accel_write = vk::WriteDescriptorSet::builder()
                 .dst_set(self.descriptor_set)
                 .dst_binding(0)
                 .dst_array_element(0)
                 .descriptor_type(vk::DescriptorType::ACCELERATION_STRUCTURE_NV)
-                .next(&mut accel_info)
+                .push_next(&mut accel_info)
                 .build();
+
+            // This is only set by the builder for images, buffers, or views; need to set explicitly after
+            accel_write.descriptor_count = 1;
 
             let image_info = [vk::DescriptorImageInfo::builder()
                 .image_layout(vk::ImageLayout::GENERAL)
@@ -1118,9 +1121,18 @@ impl RayTracingApp {
             let buffer2 = self.color2_buffer.as_ref().unwrap().buffer;
 
             let buffer_info = [
-                vk::DescriptorBufferInfo::builder().buffer(buffer0).build(),
-                vk::DescriptorBufferInfo::builder().buffer(buffer1).build(),
-                vk::DescriptorBufferInfo::builder().buffer(buffer2).build(),
+                vk::DescriptorBufferInfo::builder()
+                    .buffer(buffer0)
+                    .range(vk::WHOLE_SIZE)
+                    .build(),
+                vk::DescriptorBufferInfo::builder()
+                    .buffer(buffer1)
+                    .range(vk::WHOLE_SIZE)
+                    .build(),
+                vk::DescriptorBufferInfo::builder()
+                    .buffer(buffer2)
+                    .range(vk::WHOLE_SIZE)
+                    .build(),
             ];
 
             let buffers_write = vk::WriteDescriptorSet::builder()
@@ -1683,14 +1695,10 @@ impl Base {
                 Swapchain::name().as_ptr(),
                 RayTracing::name().as_ptr(),
                 vk::ExtDescriptorIndexingFn::name().as_ptr(),
+                vk::ExtScalarBlockLayoutFn::name().as_ptr(),
                 vk::KhrGetMemoryRequirements2Fn::name().as_ptr(),
             ];
 
-            let features = vk::PhysicalDeviceFeatures {
-                shader_clip_distance: 1,
-                vertex_pipeline_stores_and_atomics: 1,
-                ..Default::default()
-            };
             let priorities = [1.0];
 
             let queue_info = [vk::DeviceQueueCreateInfo::builder()
@@ -1699,16 +1707,27 @@ impl Base {
                 .build()];
 
             let mut descriptor_indexing =
-                vk::PhysicalDeviceDescriptorIndexingFeaturesEXT::default();
-            let mut features2 = vk::PhysicalDeviceFeatures2::builder()
-                .next(&mut descriptor_indexing)
+                vk::PhysicalDeviceDescriptorIndexingFeaturesEXT::builder()
+                    .descriptor_binding_variable_descriptor_count(true)
+                    .runtime_descriptor_array(true)
+                    .build();
+
+            let mut scalar_block = vk::PhysicalDeviceScalarBlockLayoutFeaturesEXT::builder()
+                .scalar_block_layout(true)
                 .build();
-            features2.features = features;
+
+            let mut features2 = vk::PhysicalDeviceFeatures2::default();
+            instance
+                .fp_v1_1()
+                .get_physical_device_features2(pdevice, &mut features2);
 
             let device_create_info = vk::DeviceCreateInfo::builder()
                 .queue_create_infos(&queue_info)
                 .enabled_extension_names(&device_extension_names_raw)
-                .next(&mut features2);
+                .enabled_features(&features2.features)
+                .push_next(&mut scalar_block)
+                .push_next(&mut descriptor_indexing)
+                .build();
 
             let device: Device = instance
                 .create_device(pdevice, &device_create_info, None)
