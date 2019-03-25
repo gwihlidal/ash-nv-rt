@@ -400,8 +400,8 @@ impl RayTracingApp {
             vk::ImageType::TYPE_2D,
             self.base.surface_format.format,
             vk::Extent3D::builder()
-                .width(1024)
-                .height(768)
+                .width(self.base.window_width)
+                .height(self.base.window_height)
                 .depth(1)
                 .build(),
             vk::ImageTiling::OPTIMAL,
@@ -1199,8 +1199,8 @@ impl RayTracingApp {
             )
             .extent(
                 vk::Extent3D::builder()
-                    .width(1024)
-                    .height(768)
+                    .width(self.base.window_width)
+                    .height(self.base.window_height)
                     .depth(1)
                     .build(),
             )
@@ -1278,8 +1278,8 @@ impl RayTracingApp {
                     sbt_call_buffer,
                     sbt_call_offset,
                     sbt_call_stride,
-                    1024,
-                    768,
+                    self.base.window_width,
+                    self.base.window_height,
                     1,
                 )
             }
@@ -1532,6 +1532,9 @@ pub struct Base {
 
     pub present_complete_semaphore: vk::Semaphore,
     pub rendering_complete_semaphore: vk::Semaphore,
+
+    pub window_width: u32,
+    pub window_height: u32,
 }
 
 impl Base {
@@ -1559,14 +1562,19 @@ impl Base {
     pub fn new(window_width: u32, window_height: u32) -> Self {
         unsafe {
             let events_loop = winit::EventsLoop::new();
-            let window = winit::WindowBuilder::new()
-                .with_title("Rust Vulkan NV Ray Tracing w/ HLSL")
-                .with_dimensions(winit::dpi::LogicalSize::new(
+            let logical_dimensions = winit::dpi::LogicalSize::new(
                     window_width as f64,
                     window_height as f64,
-                ))
+                );
+            let window = winit::WindowBuilder::new()
+                .with_title("Rust Vulkan NV Ray Tracing w/ HLSL")
+                .with_dimensions(logical_dimensions.clone())
+                .with_resizable(false)
                 .build(&events_loop)
                 .unwrap();
+            let hidpi_factor: f64 = window.get_hidpi_factor();
+            let physical_dimensions = logical_dimensions.to_physical(hidpi_factor);
+
             let entry = Entry::new().unwrap();
             let app_name = CString::new("Rust_VK_RT_HLSL").unwrap();
 
@@ -1790,6 +1798,8 @@ impl Base {
                 surface,
                 debug_call_back,
                 debug_report_loader,
+                window_width: physical_dimensions.width as u32,
+                window_height: physical_dimensions.height as u32,
             }
         }
     }
