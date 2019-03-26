@@ -1014,7 +1014,7 @@ impl RayTracingApp {
     fn create_bindless_uniform_buffers(&mut self) {
         let color0: [f32; 3] = [1.0, 0.0, 0.0];
         let color1: [f32; 3] = [0.0, 1.0, 0.0];
-        let color2: [f32; 3] = [0.6, 0.6, 0.0];
+        let color2: [f32; 3] = [0.0, 0.0, 1.0];
 
         let buffer_size = (std::mem::size_of::<f32>() * 3) as vk::DeviceSize;
 

@@ -4,7 +4,7 @@
 
 layout(set = 0, binding = 2) uniform UniformBuffer
 {
-    uvec3 color;
+    vec3 color;
 } uniformBuffers[];
 
 layout(location = 0) rayPayloadInNV vec3 hitValue;
@@ -13,6 +13,6 @@ hitAttributeNV vec3 attribs;
 void main()
 {
 	// gl_InstanceCustomIndex = GeometryInstance::instanceId
-    const uvec3 color = uniformBuffers[nonuniformEXT(gl_InstanceCustomIndexNV)].color.xyz;
+    const vec3 color = uniformBuffers[nonuniformEXT(gl_InstanceCustomIndexNV)].color.xyz;
     hitValue = color;
 }

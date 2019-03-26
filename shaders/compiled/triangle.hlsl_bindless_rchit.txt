@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.0
 ; Generator: Google spiregg; 0
-; Bound: 25
+; Bound: 24
 ; Schema: 0
                OpCapability RayTracingNV
                OpCapability RuntimeDescriptorArrayEXT
@@ -48,8 +48,7 @@
           %7 = OpLoad %uint %2
           %8 = OpAccessChain %_ptr_Uniform_v3float %g_uniformBuffers %7 %int_0
           %9 = OpLoad %v3float %8
-         %23 = OpVectorShuffle %v3float %9 %9 0 1 0
-         %24 = OpCompositeConstruct %Payload %23
-               OpStore %payload %24
+         %23 = OpCompositeConstruct %Payload %9
+               OpStore %payload %23
                OpReturn
                OpFunctionEnd

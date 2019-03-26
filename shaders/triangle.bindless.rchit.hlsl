@@ -19,6 +19,6 @@ ConstantBuffer<UniformBuffer> g_uniformBuffers[] : register(b2, space0);
 void main(inout Payload payload : SV_RayPayload, in Attribute attribs : SV_IntersectionAttributes)
 {
 	// InstanceID = GeometryInstance::instanceId
-	const float3 color = g_uniformBuffers[NonUniformResourceIndex(InstanceID())].color.xyx;
+	const float3 color = g_uniformBuffers[NonUniformResourceIndex(InstanceID())].color.xyz;
     payload.hitValue = color;
 }
