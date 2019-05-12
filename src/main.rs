@@ -4,6 +4,8 @@ extern crate ash;
 #[cfg(target_os = "windows")]
 extern crate winapi;
 
+#[cfg(all(unix, not(target_os = "android"), not(target_os = "macos")))]
+use ash::extensions::khr::XlibSurface;
 use ash::extensions::{
     ext::DebugReport,
     khr::{Surface, Swapchain},
@@ -1454,6 +1456,23 @@ pub fn record_submit_commandbuffer<D: DeviceV1_0, F: FnOnce(&D, vk::CommandBuffe
             .expect("Wait for fence failed.");
         device.destroy_fence(submit_fence, None);
     }
+}
+
+#[cfg(all(unix, not(target_os = "android"), not(target_os = "macos")))]
+unsafe fn create_surface<E: EntryV1_0, I: InstanceV1_0>(
+    entry: &E,
+    instance: &I,
+    window: &winit::Window,
+) -> Result<vk::SurfaceKHR, vk::Result> {
+    use winit::os::unix::WindowExt;
+    let x11_display = window.get_xlib_display().unwrap();
+    let x11_window = window.get_xlib_window().unwrap();
+    let x11_create_info = vk::XlibSurfaceCreateInfoKHR::builder()
+        .window(x11_window)
+        .dpy(x11_display as *mut vk::Display);
+
+    let xlib_surface_loader = XlibSurface::new(entry, instance);
+    xlib_surface_loader.create_xlib_surface(&x11_create_info, None)
 }
 
 #[cfg(target_os = "windows")]
