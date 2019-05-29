@@ -5,8 +5,8 @@ authors = ["Graham Wihlidal <graham@wihlidal.ca>"]
 edition = "2018"
 
 [dependencies]
-ash = "0.28.0"
+ash = "0.29.0"
 winit = "0.19"
 
 [target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3.6", features = ["windef", "winuser"] }
+winapi = { version = "0.3.7", features = ["windef", "winuser"] }
